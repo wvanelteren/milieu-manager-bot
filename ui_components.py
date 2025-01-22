@@ -17,20 +17,16 @@ class ChatUI:
     
     @staticmethod
     def handle_image_upload() -> None:
-        """Handle image upload component."""
-        uploaded_file = st.file_uploader(
-            "Drop an image here or click to upload",
-            type=["png", "jpg", "jpeg"],
-            help="Supports PNG and JPEG files"
-        )
-        
-        if uploaded_file:
-            st.image(uploaded_file, caption="Uploaded Image", use_container_width=True)
+        """Handle image upload in the UI."""
+        if "image" not in st.session_state or st.session_state.image is None:
+            uploaded_file = st.file_uploader("Upload een Google Maps screenshot", type=['png', 'jpg', 'jpeg'])
             
-            if st.session_state.image != uploaded_file.getvalue():
+            if uploaded_file is not None:
                 st.session_state.image = uploaded_file.getvalue()
-                st.session_state.messages = []
-                st.rerun()
+                st.session_state.messages = []  # Reset chat when a new image is uploaded
+                st.rerun()  # Rerun once to remove the uploader
+        else:
+            st.image(st.session_state.image, caption="Uploaded image", use_container_width=True)
 
     @staticmethod
     def display_chat_history() -> None:
