@@ -1,42 +1,6 @@
-from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 from pydantic import BaseModel, Field
-
-class StakeholderType(str, Enum):
-    BEDRIJF = "Bedrijf"
-    WINKEL = "Winkel"
-    HORECA = "Horeca"
-    BEWONER = "Bewoner"
-    BEVOEGD_GEZAG = "Bevoegd gezag"
-
-class InfluenceLevel(str, Enum):
-    HOOG = "Hoog"
-    MIDDEL = "Middel"
-    LAAG = "Laag"
-
-class ImpactLevel(str, Enum):
-    HOOG = "Hoog"
-    MIDDEL = "Middel"
-    LAAG = "Laag"
-
-class StrategyType(str, Enum):
-    INFORMEREN = "Informeren"
-    SAMENWERKEN = "Samenwerken"
-    MONITOREN = "Monitoren"
-    TEVREDEN_HOUDEN = "Tevreden Houden"
-    RAADPLEGEN = "Raadplegen"
-    ADVISEREN = "Adviseren"
-    COPRODUCEREN = "Coproduceren"
-    MEEBESLISSEN = "Meebeslissen"
-    DELEGEREN = "Delegeren"
-    REAGEREN = "Reageren"
-
-class InteractionLevel(str, Enum):
-    OMGEVINGSAPP = "Omgevingsapp"
-    BEWONERSBRIEF = "Bewonersbrief"
-    INLOOPUUR = "Inloopuur"
-    KEUKENTAFELGESPREKKEN = "Keukentafelgesprekken"
 
 class ContactInfo(BaseModel):
     adres: str = Field(..., description="Straatnaam en huisnummer van de stakeholder.")
@@ -47,29 +11,23 @@ class ContactInfo(BaseModel):
     )
 
 class Stakeholder(BaseModel):
-    stakeholder: str = Field(..., description="Naam van de stakeholder.")
-    type: StakeholderType = Field(..., description="Type stakeholder.")
-    invloed: InfluenceLevel = Field(..., description="Invloedniveau van de stakeholder.")
-    impact: ImpactLevel = Field(
-        ..., description="Impactniveau van de stakeholder op het project."
-    )
-    strategie: List[StrategyType] = Field(
-        ..., description="Lijst van communicatiestrategieën voor de stakeholder."
-    )
-    communicatiemiddel: str = Field(
-        ..., description="Het voorkeurscommunicatiemiddel voor de stakeholder."
-    )
-    frequentie: str = Field(
-        ..., description="De frequentie van communicatie met de stakeholder."
-    )
-    interactieniveau: List[InteractionLevel] = Field(
-        ..., description="Gewenste interactieniveaus met de stakeholder."
-    )
+    naam: str = Field(..., description="Als de stakeholder bewoners zijn, vermeld het bereik van huisnummers; bijv. Bewoners Stikke Hezelstraat 26-84")
+    stakeholdertype: Literal["Bedrijf", "Winkel", "Horeca", "Bewoner", "Bevoegd gezag"]
+    invloed: Literal["Hoog", "Middel", "Laag"]
+    impact: Literal["Hoog", "Middel", "Laag"]
+    # strategie: List[Literal[
+    #     "Informeren", "Samenwerken", "Monitoren", "Tevreden Houden",
+    #     "Raadplegen", "Adviseren", "Coproduceren", "Meebeslissen",
+    #     "Delegeren", "Reageren"
+    # ]]
+    # communicatiemiddel: str
+    # frequentie: str
+    # interactieniveau: List[Literal["Omgevingsapp", "Bewonersbrief", "Inloopuur", "Keukentafelgesprekken"]]
     # contactgegevens: ContactInfo = Field(
     #     ..., description="Contactinformatie van de stakeholder."
     # )
 
 class StakeholderList(BaseModel):
     stakeholders: List[Stakeholder] = Field(
-        ..., description="Lijst van stakeholders"
+        ..., description="Lijst van stakeholders. Bewoners worden gezien als 1 groep stakeholders. Bedrijven en andere stakeholders worden apart vermeld."
     )
