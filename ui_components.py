@@ -43,13 +43,22 @@ class ChatUI:
     @staticmethod
     def display_chat_history() -> None:
         """Display chat message history."""
-        for msg in st.session_state.messages:
-            if msg["role"] == "user":
-                user_content = [c for c in msg["content"] if c["type"] == "text"]
-                if user_content:
-                    st.chat_message("user").write(user_content[0]["text"])
-            else:
-                st.chat_message("assistant").write(msg["content"])
+        # If we're in data conversation mode (after analysis_complete)
+        if st.session_state.get("analysis_complete"):
+            for msg in st.session_state.data_messages:
+                if msg["role"] == "user":
+                    st.chat_message("user").write(msg["content"])
+                else:
+                    st.chat_message("assistant").markdown(msg["content"])
+        # If we're in image analysis mode
+        else:
+            for msg in st.session_state.messages:
+                if msg["role"] == "user":
+                    user_content = [c for c in msg["content"] if c["type"] == "text"]
+                    if user_content:
+                        st.chat_message("user").write(user_content[0]["text"])
+                else:
+                    st.chat_message("assistant").write(msg["content"])
 
     @staticmethod
     def get_user_input() -> Optional[str]:
