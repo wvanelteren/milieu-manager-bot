@@ -20,8 +20,8 @@ class Stakeholder(BaseModel):
     #     "Raadplegen", "Adviseren", "Coproduceren", "Meebeslissen",
     #     "Delegeren", "Reageren"
     # ]]
-    # communicatiemiddel: str
-    # frequentie: str
+    communicatiemiddel: str
+    frequentie: str = Field(..., description="Afhankelijk van het gekozen communicatiemiddel, Bijvoorbeeld:  - Nieuwsbrieven → Maandelijks  - Overleggen → Wekelijks of per fase  - Inloopspreekuren → Op verzoek of periodiek")
     # interactieniveau: List[Literal["Omgevingsapp", "Bewonersbrief", "Inloopuur", "Keukentafelgesprekken"]]
     # contactgegevens: ContactInfo = Field(
     #     ..., description="Contactinformatie van de stakeholder."
