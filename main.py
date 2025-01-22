@@ -1,7 +1,9 @@
 import streamlit as st
 
 from chatbot import ImageChatbot
+from entities import StakeholderList
 from ui_components import ChatUI, Sidebar
+from io_utils import load_system_prompt_from_j2_template
 
 GPT_MODEL = "gpt-4o"
 
@@ -10,9 +12,8 @@ def main():
     """Main application entry point."""
     st.title("🖼️ Steven's google maps afbeelding chatbot")
 
-    # Load system prompt
-    system_prompt = ""
-
+    system_prompt = load_system_prompt_from_j2_template("prompts/table.j2")
+    
     # Initialize components
     chatbot = ImageChatbot(system_prompt=system_prompt)
     chatbot.initialize_session()
@@ -35,11 +36,13 @@ def main():
         st.chat_message("user").write(prompt)
 
         try:
-            response = chatbot.get_ai_response(api_key, GPT_MODEL)
+            # Specify the Stakeholder model for structured output
+            response = chatbot.get_ai_response(
+                api_key, GPT_MODEL, response_model=StakeholderList
+            )
             st.chat_message("assistant").write(response)
         except Exception as e:
             st.error(str(e))
-
 
 if __name__ == "__main__":
     main()
