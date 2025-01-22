@@ -47,6 +47,6 @@ class ChatUI:
     def get_user_input() -> Optional[str]:
         """Get user input from chat interface."""
         return st.chat_input(
-            placeholder="Lul hier over deze afbeeding...",
+            placeholder="Geef hier de scope aan...",
             disabled=not st.session_state.image
         )
