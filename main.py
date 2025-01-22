@@ -6,6 +6,7 @@ from data_utils import dataframe_to_markdown
 from entities import StakeholderList
 from io_utils import load_system_prompt_from_j2_template
 from ui_components import ChatUI, Sidebar
+from logic import determine_interaction_levels, determine_base_strategy
 
 AVAILABLE_MODELS = ["gpt-4o", "gpt-4o-mini"]
 DEFAULT_IMAGE_MODEL = "gpt-4o"
@@ -16,19 +17,46 @@ def process_stakeholders(stakeholder_list: StakeholderList) -> pd.DataFrame:
     """Converts a StakeholderList object to a Pandas DataFrame."""
     data = []
     for stakeholder in stakeholder_list.stakeholders:
-        data.append(
-            {
-                "Stakeholder": stakeholder.naam,
-                "Type": stakeholder.stakeholdertype,
-                "Invloed": stakeholder.invloed,
-                "Impact": stakeholder.impact,
-                # "Strategie": ", ".join(stakeholder.strategie),
-                # "Communicatiemiddel": stakeholder.communicatiemiddel,
-                # "Frequentie": stakeholder.frequentie,
-                # "Interactieniveau": ", ".join(stakeholder.interactieniveau),
-            }
-        )
+        invloed_upper = stakeholder.invloed.upper()
+        impact_upper = stakeholder.impact.upper()
+        
+        strategy = determine_base_strategy(invloed_upper, impact_upper)
+        interaction_levels = determine_interaction_levels(impact_upper, invloed_upper)
+        
+        data.append({
+            "Stakeholder": stakeholder.naam,
+            "Type": stakeholder.stakeholdertype,
+            "Invloed": stakeholder.invloed,
+            "Impact": stakeholder.impact,
+            "Strategie": strategy,
+            "Communicatiemiddel": stakeholder.communicatiemiddel,
+            "Frequentie": stakeholder.frequentie,
+            "Interactieniveau": ", ".join(interaction_levels),
+        })
     return pd.DataFrame(data)
+
+
+def get_messages_for_llm():
+    if not st.session_state.data_messages:
+        return []
+        
+    initial_prompt = (
+        st.session_state.messages[-1]["content"][-1]["text"] if st.session_state.messages else "Geen initiële analyse beschikbaar"
+    )
+    
+    initial_message = {
+        "role": "user",
+        "content": f"""
+            Oorspronkelijke scope en vereisten prompt: 
+            {initial_prompt}
+
+            Resulterende stakeholder analyse tabel:
+            {dataframe_to_markdown(st.session_state.df)}"""
+    }
+    
+    # Combine initial message with existing data messages
+    messages_for_llm = [initial_message] + st.session_state.data_messages
+    return messages_for_llm
 
 
 def main():
@@ -108,21 +136,7 @@ def main():
         data_chatbot = AIChatbot(api_key, chat_model, data_system_prompt)
 
         if not st.session_state.data_messages:
-            initial_prompt = (
-                st.session_state.messages[-1] if st.session_state.messages else None
-            )
-            st.session_state.data_messages = [
-                {
-                    "role": "user",
-                    "content": f"""
-                        Oorspronkelijke scope en vereisten prompt: 
-                        {initial_prompt["content"][-1]["text"] if initial_prompt else "Geen initiële analyse beschikbaar"}
-
-                        Resulterende stakeholder analyse tabel:
-                        {dataframe_to_markdown(st.session_state.df)}
-                        """,
-                }
-            ]
+            st.session_state.data_messages = []
 
         ChatUI.display_chat_history()
 
@@ -132,7 +146,9 @@ def main():
             st.chat_message("user").write(prompt)
 
             try:
-                response = data_chatbot.get_ai_response(st.session_state.data_messages)
+
+                messages_for_llm = get_messages_for_llm()
+                response = data_chatbot.get_ai_response(messages_for_llm)
 
                 # Extract the message content from the response
                 response_content = response.choices[0].message.content
