@@ -7,7 +7,9 @@ from entities import StakeholderList
 from io_utils import load_system_prompt_from_j2_template
 from ui_components import ChatUI, Sidebar
 
-GPT_MODEL = "gpt-4o"
+AVAILABLE_MODELS = ["gpt-4o", "gpt-4o-mini"]
+DEFAULT_IMAGE_MODEL = "gpt-4o"
+DEFAULT_CHAT_MODEL = "gpt-4o-mini"
 
 
 def process_stakeholders(stakeholder_list: StakeholderList) -> pd.DataFrame:
@@ -31,12 +33,15 @@ def process_stakeholders(stakeholder_list: StakeholderList) -> pd.DataFrame:
 
 def main():
     """Main application entry point."""
-    st.title("🖼️ Steven's google maps afbeelding chatbot")
+    st.set_page_config(initial_sidebar_state="collapsed")
+
+    st.title("Milieu Manager Bot 🤖")
 
     # Setup UI and state
-    api_key = Sidebar.render()
+    image_model, chat_model = Sidebar.render()
+
+    api_key = ChatUI.handle_api_key()
     if not api_key:
-        st.info("Please add your OpenAI API key to continue.")
         return
 
     if "messages" not in st.session_state:
@@ -54,7 +59,8 @@ def main():
         "prompts/chat_with_table.j2"
     )
 
-    image_chatbot = AIChatbot(api_key, GPT_MODEL, image_system_prompt)
+    # Initialize chatbots with selected models
+    image_chatbot = AIChatbot(api_key, image_model, image_system_prompt)
 
     # Handle Image Upload
     ChatUI.handle_image_upload()
@@ -87,7 +93,7 @@ def main():
             st.dataframe(st.session_state.df)
 
         # Data Conversation Mode
-        data_chatbot = AIChatbot(api_key, GPT_MODEL, data_system_prompt)
+        data_chatbot = AIChatbot(api_key, chat_model, data_system_prompt)
 
         if not st.session_state.data_messages:
             initial_prompt = (
@@ -119,9 +125,11 @@ def main():
                 # Extract the message content from the response
                 response_content = response.choices[0].message.content
 
-                st.session_state.data_messages.append(
-                    {"role": "assistant", "content": response_content}
-                )
+                st.session_state.data_messages.append({
+                    "role": "assistant",
+                    "content": response_content
+                })
+                
                 st.chat_message("assistant").markdown(response_content)
             except Exception as e:
                 st.error(str(e))
