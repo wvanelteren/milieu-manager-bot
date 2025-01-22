@@ -2,9 +2,11 @@ import base64
 from typing import List, Optional
 
 import instructor
-from pydantic import BaseModel
 import streamlit as st
 from openai import OpenAI
+from pydantic import BaseModel
+
+from entities import StakeholderList
 
 
 class ImageChatbot:
@@ -42,28 +44,24 @@ class ImageChatbot:
 
     def get_ai_response(
         self, api_key: str, model: str, response_model: Optional[BaseModel] = None
-    ) -> None:
-        """Get response from OpenAI API with Instructor handling structured output."""
+    ) -> StakeholderList:  # return changed to StakeholderList
+        """Get response from OpenAI API with Instructor, return StakeholderList object."""
         try:
             if not self.client:
-                # Apply Instructor patch here when initializing the client
                 self.client = instructor.patch(OpenAI(api_key=api_key))
 
             response = self.client.chat.completions.create(
                 model=model,
                 messages=st.session_state.messages,
                 response_model=response_model,
+                max_tokens=4096,
             )
 
-            msg_content = (
-                response.model_dump_json()
-                if response_model
-                else response.choices[0].message.content
-            )
-            st.session_state.messages.append(
-                {"role": "assistant", "content": msg_content}
-            )
-            return msg_content
+            # Return the response object directly
+            return response
+
+        except Exception as e:
+            raise Exception(f"Error getting AI response: {str(e)}")
 
         except Exception as e:
             raise Exception(f"Error getting AI response: {str(e)}")

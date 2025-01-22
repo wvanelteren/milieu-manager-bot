@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 from chatbot import ImageChatbot
 from entities import StakeholderList
@@ -6,6 +7,26 @@ from ui_components import ChatUI, Sidebar
 from io_utils import load_system_prompt_from_j2_template
 
 GPT_MODEL = "gpt-4o"
+
+def process_stakeholders(stakeholder_list: StakeholderList) -> pd.DataFrame:
+    """Converts a StakeholderList object to a Pandas DataFrame."""
+    data = []
+    for stakeholder in stakeholder_list.stakeholders:
+        data.append({
+            "Stakeholder": stakeholder.naam,
+            "Type": stakeholder.stakeholdertype,
+            "Invloed": stakeholder.invloed,
+            "Impact": stakeholder.impact,
+            # "Strategie": ", ".join(stakeholder.strategie),
+            # "Communicatiemiddel": stakeholder.communicatiemiddel,
+            # "Frequentie": stakeholder.frequentie,
+            # "Interactieniveau": ", ".join(stakeholder.interactieniveau),
+            # "Contactgegevens Adres": stakeholder.contactgegevens.adres,
+            # "Contactgegevens Postcode": stakeholder.contactgegevens.postcode,
+            # "Contactgegevens Email": stakeholder.contactgegevens.email,
+            # "Contactgegevens Telefoon": stakeholder.contactgegevens.telefoon,
+        })
+    return pd.DataFrame(data)
 
 
 def main():
@@ -36,11 +57,23 @@ def main():
         st.chat_message("user").write(prompt)
 
         try:
-            # Specify the Stakeholder model for structured output
-            response = chatbot.get_ai_response(
+            # Get StakeholderList object
+            stakeholder_list = chatbot.get_ai_response(
                 api_key, GPT_MODEL, response_model=StakeholderList
             )
-            st.chat_message("assistant").write(response)
+
+            # Process into DataFrame and display
+            df = process_stakeholders(stakeholder_list)
+            st.dataframe(df)
+
+            # Add a user friendly message
+            st.session_state.messages.append(
+                {
+                    "role": "assistant",
+                    "content": "De stakeholdersanalyse is voltooid en hieronder weergegeven in een tabel.",
+                }
+            )
+
         except Exception as e:
             st.error(str(e))
 
