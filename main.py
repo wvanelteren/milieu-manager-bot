@@ -102,8 +102,6 @@ def main():
 
                         Resulterende stakeholder analyse tabel:
                         {dataframe_to_markdown(st.session_state.df)}
-
-                        Houd bij het beantwoorden van vragen rekening met de oorspronkelijke scope en vereisten zoals hierboven beschreven.
                         """,
                 }
             ]
@@ -124,7 +122,7 @@ def main():
                 st.session_state.data_messages.append(
                     {"role": "assistant", "content": response_content}
                 )
-                st.chat_message("assistant").write(response_content)
+                st.chat_message("assistant").markdown(response_content)
             except Exception as e:
                 st.error(str(e))
 
