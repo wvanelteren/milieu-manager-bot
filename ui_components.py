@@ -25,7 +25,7 @@ class ChatUI:
         )
         
         if uploaded_file:
-            st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
+            st.image(uploaded_file, caption="Uploaded Image", use_container_width=True)
             
             if st.session_state.image != uploaded_file.getvalue():
                 st.session_state.image = uploaded_file.getvalue()
