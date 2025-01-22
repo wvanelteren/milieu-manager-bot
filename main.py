@@ -37,6 +37,18 @@ def main():
 
     st.title("Milieu Manager Bot 🤖")
 
+    # Add welcome message
+    st.markdown("""
+    Upload een screenshot van Google Maps met een projectgebied om te beginnen met de stakeholder analyse.
+    Vermeld in de chat de oorspronkelijke scope en vereisten van het project, bijv.:
+    - De **afbakening** van het projectgebied
+    - De **aard van de werkzaamheden** (bijv. wegwerkzaamheden, bouwproject, onderhoud)
+    - De **verwachte impact** op de omgeving (bijv. bereikbaarheid, geluidshinder, verkeersdrukte)
+    - De **tijdsduur** van het project
+    
+    De bot zal een stakeholder analyse tabel genereren op basis van de gegeven informatie. U kunt daarna blijven chatten met de bot om stakeholder analyse verder te bespreken.
+    """)
+
     # Setup UI and state
     image_model, chat_model = Sidebar.render()
 
