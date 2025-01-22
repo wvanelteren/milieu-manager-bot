@@ -1,4 +1,6 @@
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from pathlib import Path
+from jinja2 import Environment, FileSystemLoader
+
 
 def load_system_prompt_from_j2_template(path: str) -> str:
     """Load and render a system prompt from a Jinja2 template file.
@@ -12,9 +14,11 @@ def load_system_prompt_from_j2_template(path: str) -> str:
     Raises:
         Exception: If template loading or rendering fails
     """
+    path = Path(path)
     env = Environment(
         loader=FileSystemLoader(path.parent),
-        autoescape=select_autoescape()
+        trim_blocks=True,
+        lstrip_blocks=True,
     )
     template = env.get_template(path.name)
     return template.render()
