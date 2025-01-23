@@ -7,6 +7,9 @@ import instructor
 class AIChatbot:
     """Core chatbot logic handling OpenAI interactions with Instructor."""
     T = TypeVar('T', bound=BaseModel)
+    
+    # Models that don't support system prompts
+    NO_SYSTEM_PROMPT_MODELS = ["o1-preview", "o1-mini"]
 
     def __init__(self, api_key: str, model: str, system_prompt: str = ""):
         self.client = instructor.patch(OpenAI(api_key=api_key))
@@ -33,14 +36,14 @@ class AIChatbot:
         try:
             conversation = []
             if self.system_prompt:
-                conversation.append({"role": "system", "content": self.system_prompt})
+                role = "assistant" if self.model in self.NO_SYSTEM_PROMPT_MODELS else "system"
+                conversation.append({"role": role, "content": self.system_prompt})
             conversation.extend(messages)
             
             return self.client.chat.completions.create(
                 model=self.model,
                 messages=conversation,
                 response_model=response_model,
-                max_tokens=4096
             )
         except Exception as e:
             raise Exception(f"Error getting AI response: {str(e)}")

@@ -8,7 +8,8 @@ from io_utils import load_system_prompt_from_j2_template
 from ui_components import ChatUI, Sidebar
 from logic import determine_interaction_levels, determine_base_strategy
 
-AVAILABLE_MODELS = ["gpt-4o", "gpt-4o-mini"]
+AVAILABLE_MODELS = ["gpt-4o", "gpt-4o-mini", "o1-preview", "o1-mini"]
+AVAILABLE_IMAGE_MODELS = ["gpt-4o", "gpt-4o-mini"]  # Only GPT-4 models for image analysis
 DEFAULT_IMAGE_MODEL = "gpt-4o"
 DEFAULT_CHAT_MODEL = "gpt-4o-mini"
 
@@ -78,7 +79,16 @@ def main():
     """)
 
     # Setup UI and state
-    image_model, chat_model = Sidebar.render()
+    image_model = Sidebar.render_model_select(
+        AVAILABLE_IMAGE_MODELS, 
+        "Stakeholder Analyse Tabel model",
+        "image_model"
+    )
+    chat_model = Sidebar.render_model_select(
+        AVAILABLE_MODELS,
+        "Chat Model",
+        "chat_model"
+    )
 
     api_key = ChatUI.handle_api_key()
     if not api_key:

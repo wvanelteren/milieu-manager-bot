@@ -1,28 +1,22 @@
 import streamlit as st
-from typing import Optional
+from typing import Optional, List
 
 class Sidebar:
     """Sidebar component handling API key input."""
     
     @staticmethod
-    def render() -> tuple[str, str]:
-        """Render sidebar and return model selections."""
+    def render_model_select(models: List[str], label: str, key: str, default_index: int = 0) -> str:
+        """Render a single model selection dropdown."""
         with st.sidebar:
-            st.write("## Geavanceerde Instellingen")   
-            st.write("### Model Selectie")
-            image_model = st.selectbox(
-                "Stakeholder Analyse Tabel model",
-                options=["gpt-4o", "gpt-4o-mini"],
-                index=0,
-                key="image_model"
+            if key == "image_model":  # Only show header for first dropdown
+                st.write("## Geavanceerde Instellingen")   
+                st.write("### Model Selectie")
+            return st.selectbox(
+                label,
+                options=models,
+                index=default_index,
+                key=key
             )
-            chat_model = st.selectbox(
-                "Chat Model",
-                options=["gpt-4o", "gpt-4o-mini"],
-                index=1,
-                key="chat_model"
-            )
-        return image_model, chat_model
 
 class ChatUI:
     """Main chat interface components."""
