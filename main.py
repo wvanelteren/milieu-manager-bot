@@ -6,7 +6,7 @@ from data_utils import dataframe_to_markdown
 from entities import StakeholderList
 from io_utils import load_system_prompt_from_j2_template
 from ui_components import ChatUI, Sidebar
-from logic import determine_interaction_levels, determine_base_strategy
+#from logic import determine_interaction_levels, determine_base_strategy
 
 AVAILABLE_MODELS = ["gpt-4o", "gpt-4o-mini", "o1-preview", "o1-mini"]
 AVAILABLE_IMAGE_MODELS = ["gpt-4o", "gpt-4o-mini"]  # Only GPT-4 models for image analysis
@@ -18,21 +18,21 @@ def process_stakeholders(stakeholder_list: StakeholderList) -> pd.DataFrame:
     """Converts a StakeholderList object to a Pandas DataFrame."""
     data = []
     for stakeholder in stakeholder_list.stakeholders:
-        invloed_upper = stakeholder.invloed.upper()
-        impact_upper = stakeholder.impact.upper()
+        # invloed_upper = stakeholder.invloed.upper()
+        # impact_upper = stakeholder.impact.upper()
         
-        strategy = determine_base_strategy(invloed_upper, impact_upper)
-        interaction_levels = determine_interaction_levels(impact_upper, invloed_upper)
+        # strategy = determine_base_strategy(invloed_upper, impact_upper)
+        # interaction_levels = determine_interaction_levels(impact_upper, invloed_upper)
         
         data.append({
             "Stakeholder": stakeholder.naam,
             "Type": stakeholder.stakeholdertype,
             "Invloed": stakeholder.invloed,
             "Impact": stakeholder.impact,
-            "Strategie": strategy,
-            "Communicatiemiddel": stakeholder.communicatiemiddel,
+            "Strategie": stakeholder.strategie,
+            #"Communicatiemiddel": stakeholder.communicatiemiddel,
+            "InteractieMethode": stakeholder.interactienmethode,
             "Frequentie": stakeholder.frequentie,
-            "Interactieniveau": ", ".join(interaction_levels),
         })
     return pd.DataFrame(data)
 
